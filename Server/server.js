@@ -13,6 +13,7 @@ app.use(express.json())
 app.use(clerkMiddleware())
 
 app.use("/api/clerk", clerkMiddleware)
+
 app.get('/', (req, res) => {
     res.send("API IS WORKING")
 })
