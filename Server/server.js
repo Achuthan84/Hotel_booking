@@ -3,16 +3,19 @@ import "dotenv/config"
 import cors from "cors";
 import connectDB from "./config/db.js"
 import { clerkMiddleware } from '@clerk/express'
+import clerkWebhooks from './controllers/clerkWebHook.js'
 
 connectDB();
 
 const app = express();
 app.use(cors())
 
-app.use(express.json())
 app.use(clerkMiddleware())
 
-app.use("/api/clerk", clerkMiddleware)
+// Webhook route must come BEFORE express.json() so svix gets the raw body
+app.post('/api/clerk', express.raw({ type: 'application/json' }), clerkWebhooks)
+
+app.use(express.json())
 
 app.get('/', (req, res) => {
     res.send("API IS WORKING")
