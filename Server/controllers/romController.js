@@ -12,9 +12,9 @@ export const createroom = async (req, res) => {
         }
         console.log(hotel)
     } catch (error) {
-        res.status(400).json({
+        res.status(400).json({   
             success: false,
             message: error.message
         })
-    }
+    } 
 }
