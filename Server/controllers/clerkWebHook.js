@@ -14,10 +14,8 @@ const clerkWebhooks = async (req, res) => {
         await whook.verify(req.body, headers);
         const { data, type } = JSON.parse(req.body.toString());
 
-
-
         switch (type) {
-            case "user.created":
+            case "user.created": {  // ✅ added block scope {}
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
@@ -26,7 +24,8 @@ const clerkWebhooks = async (req, res) => {
                 };
                 await User.create(userData);
                 break;
-            case "user.updated":
+            }
+            case "user.updated": {  // ✅ added block scope {}
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
@@ -35,6 +34,7 @@ const clerkWebhooks = async (req, res) => {
                 };
                 await User.findByIdAndUpdate(data.id, userData);
                 break;
+            }
             case "user.deleted":
                 await User.findByIdAndDelete(data.id);
                 break;
