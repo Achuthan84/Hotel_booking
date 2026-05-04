@@ -33,7 +33,6 @@ app.use(clerkMiddleware({
   authorizedParties: allowedOrigins
 }));
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
 app.get('/', (req, res) => { res.send("API IS WORKING") });
 app.use('/api/user', UserRoute)
