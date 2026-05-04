@@ -43,3 +43,5 @@ app.use('/api/bookings', Bookings)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));
+
+export default app
