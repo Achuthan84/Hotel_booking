@@ -16,17 +16,21 @@ connectCloudinary();
 const app = express();
 
 const normalizeOrigin = (origin) => origin?.trim().replace(/\/$/, "");
+const vercelFrontendUrl = process.env.VERCEL_URL ? `https://${normalizeOrigin(process.env.VERCEL_URL)}` : null;
 const allowedOrigins = [
   normalizeOrigin(process.env.FRONTEND_URL),
-  // "http://localhost:5173",
-  // "http://127.0.0.1:5173",
-  "https://quickstay-three-azure.vercel.app/"
+  normalizeOrigin("https://quickstay-three-azure.vercel.app"),
+  vercelFrontendUrl,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ].filter(Boolean);
 
+console.log("Allowed CORS origins:", allowedOrigins);
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
+app.options("*", cors({ origin: allowedOrigins, credentials: true }));
 
 app.post('/api/clerk', express.raw({ type: 'application/json' }), clerkWebhooks);
 
