@@ -9,8 +9,8 @@ import HotelRoute from "./routes/hotelRoute.js";
 import RoomRoute from "./routes/roomRoute.js";
 import Bookings from "./routes/bookingsRoute.js";
 import connectCloudinary from "./config/cloudinary.js";
+import { stripeWebhooks } from "./controllers/stripeWebhooks.js";
 
-// DB + Cloudinary connect
 connectDB();
 connectCloudinary();
 
@@ -47,14 +47,14 @@ app.use(
   })
 );
 
-// ---------- WEBHOOK ----------
+
 app.post(
   "/api/clerk",
   express.raw({ type: "application/json" }),
   clerkWebhooks
 );
+app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
-// ---------- MIDDLEWARE ----------
 app.use(express.json());
 
 app.use(clerkMiddleware());

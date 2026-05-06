@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 
 const RoomDetails = () => {
   const { id } = useParams();
-  const { rooms, getToken, axios, navigate, currency, toast } = useAppContext();
+  const { rooms, getToken, axios, navigate, currency, toast, user } = useAppContext();
   const [room, setRoom] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [checkInDate, setCheckInDate] = useState(null);
@@ -154,7 +154,12 @@ const RoomDetails = () => {
             <input onChange={(e) => setGuests(e.target.value)} value={guests} min={1} max={10} type="number" id='guest' className='max-w-20 cursor-pointer rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none' required />
           </div>
         </div>
-        <button type="submit" className="bg-primary hover:bg-primary-dull active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer">
+        <button type="submit" onClick={(e) => {
+            if (!user) {
+              e.preventDefault();
+              toast.error("Login to book hotel");
+            }
+          }} className="bg-primary hover:bg-primary-dull active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer">
           {isAvailable ? "Book Now" : "Check Availability"}
         </button>
       </form>
