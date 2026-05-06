@@ -1,30 +1,30 @@
-import stripe from 'stripe';
+import Stripe from 'stripe'; // capital S
 import Booking from '../models/Booking.js';
 
+const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 export const stripeWebhooks = async (request, response) => {
-    // Stripe Gateway Initialize
-    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
     const sig = request.headers['stripe-signature'];
     let event;
     try {
-        event = stripeInstance.webhooks.constructEvent(request.body, sig, process.
-            env.STRIPE_WEBHOOK_SECRET)
+        event = stripeInstance.webhooks.constructEvent(
+            request.body,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+        );
     } catch (err) {
-        1
-        response.status(400).send(`Webhook Error: ${err.message}`)
+        return response.status(400).send(`Webhook Error: ${err.message}`);
     }
     if (event.type === "payment_intent.succeeded") {
         const paymentIntent = event.data.object;
         const paymentIntentId = paymentIntent.id;
 
-        // Getting Session Metadata
         const session = await stripeInstance.checkout.sessions.list({
             payment_intent: paymentIntentId,
         });
 
         const { bookingId } = session.data[0].metadata;
 
-        // Mark Payment as Paid
         await Booking.findByIdAndUpdate(bookingId, {
             isPaid: true,
             paymentMethod: "Stripe"
@@ -33,5 +33,6 @@ export const stripeWebhooks = async (request, response) => {
     } else {
         console.log("Unhandled event type:", event.type);
     }
+
     response.json({ received: true });
-}
+};

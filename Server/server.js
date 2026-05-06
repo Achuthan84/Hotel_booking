@@ -16,7 +16,7 @@ connectCloudinary();
 
 const app = express();
 
-// ---------- CORS CONFIG (FIXED) ----------
+// ---------- CORS ----------
 const normalizeOrigin = (origin) => origin?.trim().replace(/\/$/, "");
 
 const allowedOrigins = [
@@ -29,14 +29,8 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-
       const normalized = normalizeOrigin(origin);
-
-      // allow vercel domains dynamically
-      if (
-        allowedOrigins.includes(normalized) ||
-        normalized.includes("vercel.app")
-      ) {
+      if (allowedOrigins.includes(normalized) || normalized.includes("vercel.app")) {
         callback(null, true);
       } else {
         console.log("❌ Blocked by CORS:", origin);
@@ -47,26 +41,16 @@ app.use(
   })
 );
 
+// ---------- WEBHOOK ROUTES (raw body — must be before express.json()) ----------
+app.post("/api/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+app.post("/api/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
-app.post(
-  "/api/clerk",
-  express.raw({ type: "application/json" }),
-  clerkWebhooks
-);
-app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
-
+// ---------- MIDDLEWARE ----------
 app.use(express.json());
-
 app.use(clerkMiddleware());
 
-
-app.use("/uploads", express.static("uploads"));
-
 // ---------- ROUTES ----------
-app.get("/", (req, res) => {
-  res.send("API IS WORKING");
-});
-
+app.get("/", (req, res) => res.send("API IS WORKING"));
 app.use("/api/user", UserRoute);
 app.use("/api/hotels", HotelRoute);
 app.use("/api/rooms", RoomRoute);
@@ -74,7 +58,4 @@ app.use("/api/bookings", Bookings);
 
 // ---------- SERVER ----------
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () =>
-  console.log(`🚀 SERVER RUNNING ON PORT ${PORT}`)
-);
+app.listen(PORT, () => console.log(`🚀 SERVER RUNNING ON PORT ${PORT}`));
