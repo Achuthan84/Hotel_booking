@@ -1,6 +1,7 @@
 import Hotel from "../models/Hotel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import Room from '../models/Room.js'
+import fs from "fs/promises";
 
 export const createroom = async (req, res) => {
     try {
@@ -36,14 +37,12 @@ export const createroom = async (req, res) => {
         }
 
         const uploadimage = req.files.map(async (file) => {
-            if (!file?.buffer || !file?.mimetype) {
-                throw new Error("Image upload failed: invalid file upload");
+            if (!file?.path) {
+                throw new Error("Image upload failed: missing file path");
             }
 
-            const dataUri = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-
             try {
-                const response = await cloudinary.uploader.upload(dataUri, {
+                const response = await cloudinary.uploader.upload(file.path, {
                     resource_type: "image",
                     folder: "hotel_booking/rooms",
                 });
@@ -59,6 +58,9 @@ export const createroom = async (req, res) => {
                 };
                 console.error("Cloudinary upload failed:", details);
                 throw err;
+            } finally {
+                // Best-effort cleanup of local temp file
+                await fs.unlink(file.path).catch(() => { });
             }
         })
 
